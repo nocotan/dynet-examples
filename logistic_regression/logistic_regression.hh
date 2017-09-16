@@ -54,14 +54,17 @@ std::vector<dynet::real>  logistic_regression::fit_predict(std::vector<std::vect
     }
 
     for(int i=0; i<=max_iter; ++i) {
-        for(int j=0; j<r; ++j) {
-            dynet::Expression y_pred = dynet::logistic(w*X[j]);
-            dynet::Expression l = dynet::binary_log_loss(y_pred, Y[j]);
-            dynet::real loss = dynet::as_scalar(cg.forward(l));
-            if(i%50==0) std::cout << "iter: " << i << ", loss = " << loss << std::endl;
-            cg.backward(l);
-            trainer.update();
+        dynet::Expression y_pred = dynet::logistic(w*X[0]);
+        dynet::Expression l = dynet::binary_log_loss(y_pred, Y[0]);
+        for(int j=1; j<r; ++j) {
+            y_pred = dynet::logistic(w*X[j]);
+            l = l + dynet::binary_log_loss(y_pred, Y[j]);
         }
+        l = l / r;
+        dynet::real loss = dynet::as_scalar(cg.forward(l));
+        if(i%10==0) std::cout << "iter: " << i << ", loss = " << loss << std::endl;
+        cg.backward(l);
+        trainer.update();
     }
 
     std::vector<dynet::real> pred;
