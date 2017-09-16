@@ -1,6 +1,6 @@
 #include "dynet/dynet.h"
 
-#include "linear_regression.hh"
+#include "regression/linear_regression.hh"
 
 using namespace dyex;
 
